@@ -61,29 +61,48 @@ const store = createStore(todoApp)
 
 // components
 
-const FilterLink = ({ filter, children }) => (
-  <a href="#" onClick={
-      e => {
+const FilterLink = ({ filter, currentFilter, children }) => (
+  currentFilter === filter ? <span>{children}</span> :
+    <a
+      href="#"
+      onClick={e => {
         e.preventDefault()
         store.dispatch({ type: 'SET_VISIBILITY_FILTER', filter })
-      }
-    }
-  >
-    {children}
-  </a>
+      }}
+    >
+      {children}
+    </a>
 )
 FilterLink.propTypes = {
   filter: PropTypes.string.isRequired,
+  currentFilter: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired
+}
+
+const getVisibleTodos = (storedTodos, filter) => {
+  switch (filter) {
+    case 'SHOW_ALL':
+      return storedTodos
+    case 'SHOW_ACTIVE':
+      return storedTodos.filter(td => !td.completed)
+    case 'SHOW_COMPLETED':
+      return storedTodos.filter(td => !!td.completed)
+    default:
+      return []
+  }
 }
 
 let nextTodoId = 0
 class TodoApp extends Component {
   static propTypes = {
-    todos: PropTypes.array.isRequired
+    todos: PropTypes.array.isRequired,
+    visibilityFilter: PropTypes.string.isRequired
   }
 
   render() {
+    const { todos, visibilityFilter } = this.props
+    const visibleTodos = getVisibleTodos(todos, visibilityFilter)
+
     return (
       <div>
         <input ref={node => {this.input = node}}/>
@@ -101,17 +120,7 @@ class TodoApp extends Component {
         </button>
         <ul>
           {
-            this.props.todos
-              .filter(td => {
-                switch (store.getState().visibilityFilter) {
-                  case 'SHOW_COMPLETED':
-                    return !!td.completed
-                  case 'SHOW_ACTIVE':
-                    return !td.completed
-                  default:
-                    return true
-                }
-              })
+            visibleTodos
               .map(td =>
                 <li
                   key={td.id}
@@ -129,9 +138,18 @@ class TodoApp extends Component {
         </ul>
         <p>
           Show:
-          {' '}<FilterLink filter="SHOW_ALL">All</FilterLink>
-          {' '}<FilterLink filter="SHOW_ACTIVE">Active</FilterLink>
-          {' '}<FilterLink filter="SHOW_COMPLETED">Completed</FilterLink>
+          {' '}
+          <FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter}>
+            All
+          </FilterLink>
+          {' '}
+          <FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter}>
+            Active
+          </FilterLink>
+          {' '}
+          <FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter}>
+            Completed
+          </FilterLink>
         </p>
       </div>
     )
@@ -145,7 +163,7 @@ const app = document.createElement('div')
 document.body.appendChild(app)
 
 const render = () => {
-  ReactDOM.render(<TodoApp todos={store.getState().todos}/>, app)
+  ReactDOM.render(<TodoApp {...store.getState()}/>, app)
 }
 
 store.subscribe(render)
