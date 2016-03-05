@@ -35,6 +35,34 @@ FilterLink.propTypes = {
   children: PropTypes.node.isRequired
 }
 
+const Todo = ({ onClick, completed, text }) => (
+  <li
+    onClick={onClick}
+    style={{ textDecoration: completed ? 'line-through' : 'none' }}
+  >
+    {text}
+  </li>
+)
+Todo.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  completed: PropTypes.bool.isRequired,
+  text: PropTypes.string.isRequired
+}
+
+const TodoList = ({ todos, onTodoClick }) => (
+  <ul>
+    {
+      todos.map(todo =>
+        <Todo key={todo.id} {...todo} onClick={() => onTodoClick(todo.id)}/>
+      )
+    }
+  </ul>
+)
+TodoList.propTypes = {
+  todos: PropTypes.array.isRequired,
+  onTodoClick: PropTypes.func.isRequired
+}
+
 const getVisibleTodos = (storedTodos, filter) => {
   switch (filter) {
     case 'SHOW_ALL':
@@ -74,24 +102,10 @@ class TodoApp extends Component {
         >
           Add Todo
         </button>
-        <ul>
-          {
-            visibleTodos
-              .map(td =>
-                <li
-                  key={td.id}
-                  onClick={() => store.dispatch({
-                    type: 'TOGGLE_TODO',
-                    id: td.id
-                  })}
-                  style={{
-                    textDecoration: td.completed ? 'line-through' : 'none'
-                  }}
-                >
-                  {td.text}
-                </li>)
-          }
-        </ul>
+        <TodoList
+          todos={visibleTodos}
+          onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
+        />
         <p>
           Show:
           {' '}
