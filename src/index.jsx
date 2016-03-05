@@ -63,14 +63,14 @@ TodoList.propTypes = {
   onTodoClick: PropTypes.func.isRequired
 }
 
-const getVisibleTodos = (storedTodos, filter) => {
+const getVisibleTodos = (todos, filter) => {
   switch (filter) {
     case 'SHOW_ALL':
-      return storedTodos
+      return todos
     case 'SHOW_ACTIVE':
-      return storedTodos.filter(td => !td.completed)
+      return todos.filter(todo => !todo.completed)
     case 'SHOW_COMPLETED':
-      return storedTodos.filter(td => !!td.completed)
+      return todos.filter(todo => !!todo.completed)
     default:
       return []
   }
