@@ -17,18 +17,15 @@ const store = createStore(todoApp)
 
 // components
 
-const FilterLink = ({ filter, currentFilter, children }) => (
-  currentFilter === filter ? <span>{children}</span> :
-    <a
-      href="#"
-      onClick={e => {
-        e.preventDefault()
-        store.dispatch({ type: 'SET_VISIBILITY_FILTER', filter })
-      }}
-    >
-      {children}
-    </a>
-)
+const FilterLink = ({ filter, currentFilter, children, onClick }) => {
+  const handler = e => {
+    e.preventDefault()
+    onClick(filter)
+  }
+  return currentFilter === filter ? (<span>{children}</span>) : (
+    <a href="#" onClick={handler}>{children}</a>
+  )
+}
 FilterLink.propTypes = {
   filter: PropTypes.string.isRequired,
   currentFilter: PropTypes.string.isRequired,
