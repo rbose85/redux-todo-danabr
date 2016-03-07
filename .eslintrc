@@ -6,6 +6,7 @@
     "node": true
   },
   "rules": {
+    "react/no-multi-comp": 0,
     "comma-dangle": [
       2,
       "never"

@@ -16,6 +16,7 @@ const store = createStore(todoApp)
 
 
 // components
+
 const Link = ({ isActive, children, onClick }) => {
   const handler = e => {
     e.preventDefault()
@@ -69,10 +70,6 @@ const Footer = () => (
     {' '}<FilterLink filter="SHOW_COMPLETED">Completed</FilterLink>
   </p>
 )
-Footer.propTypes = {
-  visibilityFilter: PropTypes.string.isRequired,
-  onFilterClick: PropTypes.func.isRequired
-}
 
 const Todo = ({ onClick, completed, text }) => (
   <li
@@ -102,10 +99,12 @@ TodoList.propTypes = {
   onTodoClick: PropTypes.func.isRequired
 }
 
-const AddTodo = ({ onAddClick }) => {
+const AddTodo = () => {
   let input
+  let nextTodoId = 0
+
   const addClick = () => {
-    onAddClick(input.value)
+    store.dispatch({ type: 'ADD_TODO', id: nextTodoId++, text: input.value })
     input.value = ''
   }
 
@@ -115,9 +114,6 @@ const AddTodo = ({ onAddClick }) => {
       <button onClick={addClick}>Add Todo</button>
     </div>
   )
-}
-AddTodo.propTypes = {
-  onAddClick: PropTypes.func.isRequired
 }
 
 const getVisibleTodos = (todos, filter) => {
@@ -133,35 +129,38 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
-let nextTodoId = 0
-const TodoApp = ({ todos, visibilityFilter }) => (
+class VisibleTodoList extends Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() => this.forceUpdate())
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
+
+  render() {
+    const state = store.getState()
+
+    return (
+      <TodoList
+        todos={getVisibleTodos(state.todos, state.visibilityFilter)}
+        onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
+      />
+    )
+  }
+}
+
+const TodoApp = () => (
   <div>
-    <AddTodo
-      onAddClick={text =>
-          store.dispatch({ type: 'ADD_TODO', id: nextTodoId++, text })
-        }
-    />
-    <TodoList
-      todos={getVisibleTodos(todos, visibilityFilter)}
-      onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
-    />
+    <AddTodo/>
+    <VisibleTodoList/>
     <Footer/>
   </div>
 )
-TodoApp.propTypes = {
-  todos: PropTypes.array.isRequired,
-  visibilityFilter: PropTypes.string.isRequired
-}
 
 
 // render
 
 const app = document.createElement('div')
 document.body.appendChild(app)
-
-const render = () => {
-  ReactDOM.render(<TodoApp {...store.getState()}/>, app)
-}
-
-store.subscribe(render)
-render()
+ReactDOM.render(<TodoApp/>, app)
