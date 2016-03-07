@@ -1,6 +1,6 @@
 import './styles.css'
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { combineReducers, createStore } from 'redux'
 import * as reducers from './reducers'
@@ -29,7 +29,42 @@ const FilterLink = ({ filter, currentFilter, children, onClick }) => {
 FilterLink.propTypes = {
   filter: PropTypes.string.isRequired,
   currentFilter: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  onClick: PropTypes.func.isRequired
+}
+
+const Footer = ({ visibilityFilter, onFilterClick }) => (
+  <p>
+    Show:
+    {' '}
+    <FilterLink
+      filter="SHOW_ALL"
+      currentFilter={visibilityFilter}
+      onClick={onFilterClick}
+    >
+      All
+    </FilterLink>
+    {' '}
+    <FilterLink
+      filter="SHOW_ACTIVE"
+      currentFilter={visibilityFilter}
+      onClick={onFilterClick}
+    >
+      Active
+    </FilterLink>
+    {' '}
+    <FilterLink
+      filter="SHOW_COMPLETED"
+      currentFilter={visibilityFilter}
+      onClick={onFilterClick}
+    >
+      Completed
+    </FilterLink>
+  </p>
+)
+Footer.propTypes = {
+  visibilityFilter: PropTypes.string.isRequired,
+  onFilterClick: PropTypes.func.isRequired
 }
 
 const Todo = ({ onClick, completed, text }) => (
@@ -92,44 +127,28 @@ const getVisibleTodos = (todos, filter) => {
 }
 
 let nextTodoId = 0
-class TodoApp extends Component {
-  static propTypes = {
-    todos: PropTypes.array.isRequired,
-    visibilityFilter: PropTypes.string.isRequired
-  }
-
-  render() {
-    const { todos, visibilityFilter } = this.props
-    const visibleTodos = getVisibleTodos(todos, visibilityFilter)
-
-    return (
-      <div>
-        <AddTodo onAddClick={text =>
-            store.dispatch({ type: 'ADD_TODO', id: nextTodoId++, text })
-          }
-        />
-        <TodoList
-          todos={visibleTodos}
-          onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
-        />
-        <p>
-          Show:
-          {' '}
-          <FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter}>
-            All
-          </FilterLink>
-          {' '}
-          <FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter}>
-            Active
-          </FilterLink>
-          {' '}
-          <FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter}>
-            Completed
-          </FilterLink>
-        </p>
-      </div>
-    )
-  }
+const TodoApp = ({ todos, visibilityFilter }) => (
+  <div>
+    <AddTodo
+      onAddClick={text =>
+          store.dispatch({ type: 'ADD_TODO', id: nextTodoId++, text })
+        }
+    />
+    <TodoList
+      todos={getVisibleTodos(todos, visibilityFilter)}
+      onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
+    />
+    <Footer
+      visibilityFilter={visibilityFilter}
+      onFilterClick={filter =>
+          store.dispatch({ type: 'SET_VISIBILITY_FILTER', filter })
+        }
+    />
+  </div>
+)
+TodoApp.propTypes = {
+  todos: PropTypes.array.isRequired,
+  visibilityFilter: PropTypes.string.isRequired
 }
 
 
