@@ -7,6 +7,26 @@ import { connect, Provider } from 'react-redux'
 import * as reducers from './reducers'
 
 
+// action creators
+
+let nextTodoId = 0
+const addTodo = text => ({
+  type: 'ADD_TODO',
+  id: nextTodoId++,
+  text
+})
+
+const setVisibilityFilter = filter => ({
+  type: 'SET_VISIBILITY_FILTER',
+  filter
+})
+
+const toggleTodo = id => ({
+  type: 'TOGGLE_TODO',
+  id
+})
+
+
 // components
 
 const Link = ({ isActive, children, onClick }) => {
@@ -29,10 +49,7 @@ const mapStateToLinkProps = (state, ownProps) => ({
   isActive: ownProps.filter === state.visibilityFilter
 })
 const mapDispatchToLinkProps = (dispatch, ownProps) => ({
-  onClick: () => dispatch({
-    type: 'SET_VISIBILITY_FILTER',
-    filter: ownProps.filter
-  })
+  onClick: () => dispatch(setVisibilityFilter(ownProps.filter))
 })
 const FilterLink = connect(
   mapStateToLinkProps, mapDispatchToLinkProps
@@ -77,14 +94,9 @@ TodoList.propTypes = {
 
 let AddTodo = ({ dispatch }) => {
   let input
-  let nextTodoId = 0
 
   const addClick = () => {
-    dispatch({
-      type: 'ADD_TODO',
-      id: nextTodoId++,
-      text: input.value
-    })
+    dispatch(addTodo(input.value))
     input.value = ''
   }
 
@@ -117,7 +129,7 @@ const mapStateToTodoListProps = state => ({
   todos: getVisibleTodos(state.todos, state.visibilityFilter)
 })
 const mapDispatchToTodoListProps = dispatch => ({
-  onTodoClick: id => dispatch({ type: 'TOGGLE_TODO', id })
+  onTodoClick: id => dispatch(toggleTodo(id))
 })
 const VisibleTodoList = connect(
   mapStateToTodoListProps, mapDispatchToTodoListProps
