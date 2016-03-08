@@ -3,6 +3,7 @@ import './styles.css'
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { combineReducers, createStore } from 'redux'
+import { Provider } from 'react-redux'
 import * as reducers from './reducers'
 
 
@@ -169,27 +170,6 @@ const TodoApp = () => (
 
 
 // store
-
-class Provider extends Component {
-  static propTypes = {
-    store: PropTypes.object.isRequired,
-    children: PropTypes.node.isRequired
-  }
-
-  static childContextTypes = {
-    store: PropTypes.object
-  }
-
-  getChildContext() {
-    return {
-      store: this.props.store
-    }
-  }
-
-  render() {
-    return this.props.children
-  }
-}
 
 const todoApp = combineReducers({
   todos: reducers.todos,
