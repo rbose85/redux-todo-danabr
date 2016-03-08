@@ -1,6 +1,6 @@
 import './styles.css'
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { combineReducers, createStore } from 'redux'
 import { connect, Provider } from 'react-redux'
