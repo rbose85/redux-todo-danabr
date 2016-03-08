@@ -97,12 +97,12 @@ TodoList.propTypes = {
   onTodoClick: PropTypes.func.isRequired
 }
 
-const AddTodo = (props, { store }) => {
+let AddTodo = ({ dispatch }) => {
   let input
   let nextTodoId = 0
 
   const addClick = () => {
-    store.dispatch({
+    dispatch({
       type: 'ADD_TODO',
       id: nextTodoId++,
       text: input.value
@@ -117,9 +117,10 @@ const AddTodo = (props, { store }) => {
     </div>
   )
 }
-AddTodo.contextTypes = {
-  store: PropTypes.object
+AddTodo.propTypes = {
+  dispatch: PropTypes.func.isRequired
 }
+AddTodo = connect()(AddTodo)
 
 const getVisibleTodos = (todos, filter) => {
   switch (filter) {
