@@ -25,40 +25,18 @@ Link.propTypes = {
   onClick: PropTypes.func.isRequired
 }
 
-class FilterLink extends Component {
-  static contextTypes = {
-    store: PropTypes.object
-  }
-
-  componentDidMount() {
-    const { store } = this.context
-    this.unsubscribe = store.subscribe(() => this.forceUpdate())
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
-  render() {
-    const props = this.props
-    const { store } = this.context
-    const state = store.getState()
-
-    return (
-      <Link
-        isActive={props.filter === state.visibilityFilter}
-        onClick={ () =>
-          store.dispatch({
-            type: 'SET_VISIBILITY_FILTER',
-            filter: props.filter
-          })
-        }
-      >
-        {props.children}
-      </Link>
-    )
-  }
-}
+const mapStateToLinkProps = (state, ownProps) => ({
+  isActive: ownProps.filter === state.visibilityFilter
+})
+const mapDispatchToLinkProps = (dispatch, ownProps) => ({
+  onClick: () => dispatch({
+    type: 'SET_VISIBILITY_FILTER',
+    filter: ownProps.filter
+  })
+})
+const FilterLink = connect(
+  mapStateToLinkProps, mapDispatchToLinkProps
+)(Link)
 
 const Footer = () => (
   <p>
