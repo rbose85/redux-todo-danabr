@@ -3,7 +3,7 @@ import './styles.css'
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux'
+import { connect, Provider } from 'react-redux'
 import * as reducers from './reducers'
 
 
@@ -134,31 +134,13 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
-class VisibleTodoList extends Component {
-  static contextTypes = {
-    store: PropTypes.object
-  }
-
-  componentDidMount() {
-    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate())
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
-  render() {
-    const { store } = this.context
-    const state = store.getState()
-
-    return (
-      <TodoList
-        todos={getVisibleTodos(state.todos, state.visibilityFilter)}
-        onTodoClick={id => store.dispatch({ type: 'TOGGLE_TODO', id })}
-      />
-    )
-  }
-}
+const mapStateToProps = state => ({
+  todos: getVisibleTodos(state.todos, state.visibilityFilter)
+})
+const mapDispatchToProps = dispatch => ({
+  onTodoClick: id => dispatch({ type: 'TOGGLE_TODO', id })
+})
+const VisibleTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList)
 
 const TodoApp = () => (
   <div>
